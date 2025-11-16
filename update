@@ -51,7 +51,7 @@ if [[ "$OS_TYPE" = "ubuntu" ]]; then
     sudo apt autoremove -y
 
     echo -e "${green}Checking/installing essential apt packages...${nc}"
-    sudo apt install -y partitionmanager vim steam-devices adb ffmpeg ani-cli yt-dlp syncplay fastfetch mpv openvpn openvpn-dco-dkms snapd flatpak plasma-discover-backend-snap plasma-discover-backend-flatpak steam
+    sudo apt install -y partitionmanager unrar vim steam-devices adb ffmpeg ani-cli yt-dlp syncplay fastfetch mpv snapd ulatpak plasma-discover-backend-snap plasma-discover-backend-flatpak
 
     # Snap packages
     echo -e "${green}Checking/installing snap packages...${nc}"
@@ -151,7 +151,6 @@ flatpaks=(
 "Bottles"
 "VSCodium"
 "Hedge Mod Manager"
-"Ryujinx (Ryubing)"
 "Kooha"
 "Upscaler"
 "Lutris"
