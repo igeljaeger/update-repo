@@ -51,28 +51,19 @@ if [[ "$OS_TYPE" = "ubuntu" ]]; then
     sudo apt autoremove -y
 
     echo -e "${green}Checking/installing essential apt packages...${nc}"
-    sudo apt install -y partitionmanager unrar vim steam-devices adb ffmpeg ani-cli yt-dlp syncplay fastfetch mpv snapd ulatpak plasma-discover-backend-snap plasma-discover-backend-flatpak
-
-    # Snap packages
-    echo -e "${green}Checking/installing snap packages...${nc}"
-    for snap in scrcpy; do
-        snap list "$snap" &>/dev/null || sudo snap install "$snap"
-    done
-    for snap in bash-language-server; do
-        snap list "$snap" &>/dev/null || sudo snap install "$snap" --classic
-    done
+    sudo apt install -y partitionmanager unrar vim steam-devices adb ffmpeg ani-cli yt-dlp syncplay fastfetch mpv snapd flatpak plasma-discover-backend-snap plasma-discover-backend-flatpak kde-config-flatpak
 
     # Snap refresh
     echo -e "${green}Updating snaps...${nc}"
     sudo snap refresh
 
     # Distro and release upgrades
-    pending_pkg=$(sudo apt-get -s dist-upgrade | grep -P '^\d+ (removed|newly installed)')
+    pending_pkg=$(sudo apt -s dist-upgrade | grep -P '^\d+ (removed|newly installed)')
     if [[ -n "$pending_pkg" ]]; then
         echo -e "${yellow}Major package changes required:${nc}"
-        sudo apt-get -s dist-upgrade | grep -P '^\d+ (upgraded|newly installed|removed)'
+        sudo apt -s dist-upgrade | grep -P '^\d+ (upgraded|newly installed|removed)'
         read -p "Continue? [y/N] " -n 1 -r; echo
-        [[ $REPLY =~ ^[Yy]$ ]] && sudo apt-get dist-upgrade
+        [[ $REPLY =~ ^[Yy]$ ]] && sudo apt dist-upgrade
     fi
 
     if sudo do-release-upgrade -c &>/dev/null; then
@@ -139,6 +130,7 @@ echo -e "${green}Checking if Flathub repository is configured...${nc}"
 if ! flatpak remote-list | grep -q flathub; then
     echo -e "${yellow}Flathub not found - adding repository...${nc}"
     flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
 fi
 
 flatpaks=(
