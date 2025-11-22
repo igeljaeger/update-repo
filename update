@@ -51,7 +51,7 @@ if [[ "$OS_TYPE" = "ubuntu" ]]; then
     sudo apt autoremove -y
 
     echo -e "${green}Checking/installing essential apt packages...${nc}"
-    sudo apt install -y partitionmanager unrar vim steam-devices adb ffmpeg ani-cli yt-dlp syncplay fastfetch mpv snapd flatpak plasma-discover-backend-snap plasma-discover-backend-flatpak kde-config-flatpak
+    sudo apt install -y partitionmanager unrar vim steam-devices adb ffmpeg ani-cli yt-dlp syncplay fastfetch mpv snapd flatpak plasma-discover-backend-snap plasma-discover-backend-flatpak kde-config-flatpak riseup-vpn
 
     # Snap refresh
     echo -e "${green}Updating snaps...${nc}"
