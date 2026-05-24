@@ -48,7 +48,6 @@ install_required_apt_packages() {
         partitionmanager
         unrar
         vim
-        steam-devices
         adb
         ffmpeg
         syncplay
@@ -59,6 +58,10 @@ install_required_apt_packages() {
     )
     local missing=()
     local pkg
+
+    if ! dpkg -s steam >/dev/null 2>&1; then
+        packages+=(steam-devices)
+    fi
 
     for pkg in "${packages[@]}"; do
         if ! dpkg -s "$pkg" >/dev/null 2>&1; then
@@ -139,8 +142,8 @@ echo -e "${green}All updates complete.${nc}"
 read -p "Shutdown now? [y/N] " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "${yellow}Shutting down: syncing, closing crypt devices, and powering off...${nc}"
-    sudo shutdown now
+    echo -e "${yellow}Powering off...${nc}"
+    sudo /sbin/shutdown -h now
 fi
 
 echo -e "${green}Update script finished.${nc}"
