@@ -105,10 +105,8 @@ install_required_dnf_packages() {
 install_ani_cli() {
     if ! command -v ani-cli >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/ani-cli" ]; then
         echo -e "${green}Installing ani-cli...${nc}"
-        mkdir -p "$HOME/.local/bin"
-        curl -L https://github.com/pystardust/ani-cli/releases/latest/download/ani-cli -o "$HOME/.local/bin/ani-cli" \
-            || curl -L https://raw.githubusercontent.com/pystardust/ani-cli/master/ani-cli -o "$HOME/.local/bin/ani-cli"
-        chmod a+rx "$HOME/.local/bin/ani-cli"
+        sudo dnf copr enable derisis13/ani-cli
+        sudo dnf install ani-cli
     fi
 }
 
