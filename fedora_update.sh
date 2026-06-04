@@ -18,16 +18,11 @@ pkg_installed() {
     rpm -q "$1" >/dev/null 2>&1
 }
 
-install_brave_origin_beta() {
-    if ! pkg_installed brave-origin-beta; then
-        echo -e "${green}Installing Brave Origin Beta...${nc}"
-
-        if ! pkg_installed dnf5-plugins; then
-            sudo dnf install -y dnf5-plugins
-        fi
-
-        sudo dnf config-manager addrepo --from-repofile=https://brave-browser-rpm-beta.s3.brave.com/brave-browser-beta.repo
-        sudo dnf install -y brave-origin-beta
+install_helium() {
+    if ! pkg_installed helium-bin; then
+        echo -e "${green}Installing Helium Browser...${nc}"
+        sudo dnf copr enable -y imput/helium
+        sudo dnf install -y helium-bin
     fi
 }
 
@@ -49,17 +44,18 @@ install_deno() {
 
 install_required_dnf_packages() {
     local packages=(
+        kate
         kde-partitionmanager
         git-core
         unrar
-        vim
         android-tools
         mpv
         fastfetch
         plasma-discover-flatpak
+        keepassxc
+        nodejs-bash-language-server
     )
 
-    # syncplay is only available via COPR
     local copr_packages=(syncplay)
     local missing=()
     local missing_copr=()
@@ -75,7 +71,6 @@ install_required_dnf_packages() {
         fi
     done
 
-    # Check COPR packages
     for pkg in "${copr_packages[@]}"; do
         if ! pkg_installed "$pkg"; then
             missing_copr+=("$pkg")
@@ -89,13 +84,10 @@ install_required_dnf_packages() {
 
     if [ ${#missing_copr[@]} -gt 0 ]; then
         echo -e "${green}Installing COPR packages...${nc}"
-        for pkg in "${missing_copr[@]}"; do
-            sudo dnf copr enable -y batmanfeynman/syncplay 2>/dev/null || true
-            sudo dnf install -y "$pkg"
-        done
+        sudo dnf copr enable -y batmanfeynman/syncplay 2>/dev/null || true
+        sudo dnf install -y "${missing_copr[@]}"
     fi
 
-    # Swap ffmpeg-free for full ffmpeg from RPM Fusion if needed
     if pkg_installed ffmpeg-free && ! pkg_installed ffmpeg; then
         echo -e "${green}Swapping ffmpeg-free for ffmpeg (RPM Fusion)...${nc}"
         sudo dnf swap -y ffmpeg-free ffmpeg --allowerasing
@@ -103,10 +95,10 @@ install_required_dnf_packages() {
 }
 
 install_ani_cli() {
-    if ! command -v ani-cli >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/ani-cli" ]; then
+    if ! pkg_installed ani-cli; then
         echo -e "${green}Installing ani-cli...${nc}"
-        sudo dnf copr enable derisis13/ani-cli
-        sudo dnf install ani-cli
+        sudo dnf copr enable -y derisis13/ani-cli
+        sudo dnf install -y ani-cli
     fi
 }
 
@@ -117,7 +109,6 @@ fi
 
 echo -e "${green}Detected Fedora system.${nc}"
 
-# Enable RPM Fusion if not already available
 if ! rpm -q rpmfusion-free-release >/dev/null 2>&1; then
     echo -e "${green}Enabling RPM Fusion repositories...${nc}"
     sudo dnf install -y \
@@ -129,7 +120,7 @@ echo -e "${green}Updating DNF packages...${nc}"
 sudo dnf upgrade --refresh -y
 sudo dnf autoremove -y
 
-install_brave_origin_beta
+install_helium
 install_required_dnf_packages
 install_yt_dlp
 install_deno
