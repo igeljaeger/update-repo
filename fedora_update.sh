@@ -126,8 +126,43 @@ install_yt_dlp
 install_deno
 install_ani_cli
 
+run_with_spinner() {
+    local message="$1"
+    shift
+    local tmp_log
+    local pid
+    local spin='|/-\'
+    local i=0
+
+    tmp_log="$(mktemp)"
+
+    printf "%b%s%b " "${green}" "$message" "${nc}"
+    "$@" >"$tmp_log" 2>&1 &
+    pid=$!
+
+    while kill -0 "$pid" 2>/dev/null; do
+        i=$(( (i + 1) % 4 ))
+        printf "\r%b%s%b [%c]" "${green}" "$message" "${nc}" "${spin:$i:1}"
+        sleep 0.15
+    done
+
+    wait "$pid"
+    local rc=$?
+
+    if [ $rc -eq 0 ]; then
+        printf "\r%b%s%b [done]\n" "${green}" "$message" "${nc}"
+    else
+        printf "\r%b%s%b [failed]\n" "${red}" "$message" "${nc}"
+        cat "$tmp_log"
+    fi
+
+    cat "$tmp_log" >> "$LOG_FILE"
+    rm -f "$tmp_log"
+
+    return $rc
+}
+
 if command -v flatpak >/dev/null 2>&1; then
-    echo -e "${green}Updating Flatpaks...${nc}"
 
     if ! flatpak remotes --user --columns=name | grep -qxF flathub; then
         echo -e "${yellow}User Flathub not configured.${nc}"
@@ -138,8 +173,8 @@ if command -v flatpak >/dev/null 2>&1; then
         fi
     fi
 
-    flatpak update --user -y >/dev/null 2>&1
-    flatpak uninstall --user --unused -y >/dev/null 2>&1
+    run_with_spinner "Updating Flatpaks" flatpak update --user --noninteractive -y
+    run_with_spinner "Removing unused Flatpaks" flatpak uninstall --user --unused --noninteractive -y
 else
     echo -e "${yellow}Flatpak is not installed.${nc}"
     read -p "Install Flatpak now? [y/N] " -n 1 -r
